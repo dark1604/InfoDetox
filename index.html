@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ергономічний аудит робочого місця</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            background-attachment: fixed;
+        }
+
+        /* Glassmorphism базові стилі */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .glass-section {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.95);
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .glass-button-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glass-button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .glass-button-secondary {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            color: #4f46e5;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-button-secondary:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        /* Стилізація кастомних чекбоксів */
+        .custom-checkbox input:checked + div {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+        .custom-checkbox input:checked + div svg {
+            display: block;
+        }
+
+        /* Анімації */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Спеціальні стилі для генерації PDF/Друку */
+        @media print {
+            body { 
+                background: white !important; 
+                color: black !important; 
+                padding: 0 !important;
+            }
+            .no-print { display: none !important; }
+            .glass-panel { 
+                background: transparent !important; 
+                backdrop-filter: none !important;
+                box-shadow: none !important; 
+                border: none !important; 
+                padding: 0 !important;
+            }
+            #reportSection { display: block !important; }
+            #appSection { display: none !important; }
+            
+            table { width: 100% !important; border-collapse: collapse !important; }
+            th, td { border: 1px solid #d1d5db !important; padding: 12px !important; }
+            th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; }
+            
+            .print-header-bg {
+                background-color: #eef2ff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex justify-center items-start">
+
+    <div class="max-w-4xl w-full">
+        <!-- ГОЛОВНА ФОРМА -->
+        <div id="appSection" class="glass-panel rounded-3xl p-6 md:p-10 animate-fade-in">
+            <header class="text-center mb-10">
+                <div class="inline-block bg-white p-3 rounded-2xl shadow-sm mb-4">
+                    <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">Ергономічний аудит</h1>
+                <p class="text-gray-700 text-lg">Досліди своє робоче місце та створи план його покращення.</p>
+            </header>
+
+            <form id="auditForm" class="space-y-8">
+                
+                <!-- Крок 1 -->
+                <section class="glass-section rounded-2xl p-6 shadow-sm transition-all hover:shadow-md">
+                    <div class="flex items-center mb-4 border-b border-gray-300 pb-3">
+                        <span class="bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 shadow-sm">1</span>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800">Ергономіка тіла</h2>
+                    </div>
+                    <div class="space-y-4 pl-2 md:pl-11">
+                        <label class="custom-checkbox flex items-start cursor-pointer group">
+                            <input type="checkbox" id="check-back" class="hidden">
+                            <div class="w-6 h-6 border-2 border-indigo-400 rounded flex-shrink-0 flex items-center justify-center transition-colors mt-0.5 mr-3 group-hover:border-indigo-600 shadow-sm bg-white">
+                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-gray-800 font-medium leading-relaxed select-none">Мой стілець підтримує спину, а ступні стоять повністю на підлозі (або на підставці).</span>
+                        </label>
+                        
+                        <label class="custom-checkbox flex items-start cursor-pointer group">
+                            <input type="checkbox" id="check-monitor" class="hidden">
+                            <div class="w-6 h-6 border-2 border-indigo-400 rounded flex-shrink-0 flex items-center justify-center transition-colors mt-0.5 mr-3 group-hover:border-indigo-600 shadow-sm bg-white">
+                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-gray-800 font-medium leading-relaxed select-none">Мій екран розташований у правильному положенні — трохи нижче від рівня очей.</span>
+                        </label>
+
+                        <label class="custom-checkbox flex items-start cursor-pointer group">
+                            <input type="checkbox" id="check-hands" class="hidden">
+                            <div class="w-6 h-6 border-2 border-indigo-400 rounded flex-shrink-0 flex items-center justify-center transition-colors mt-0.5 mr-3 group-hover:border-indigo-600 shadow-sm bg-white">
+                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-gray-800 font-medium leading-relaxed select-none">Мої руки утворюють пряму лінію без надмірного вигину в зап'ястях.</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- Крок 2 -->
+                <section class="glass-section rounded-2xl p-6 shadow-sm transition-all hover:shadow-md">
+                    <div class="flex items-center mb-4 border-b border-gray-300 pb-3">
+                        <span class="bg-cyan-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 shadow-sm">2</span>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800">Гаджети та освітлення</h2>
+                    </div>
+                    <div class="space-y-4 pl-2 md:pl-11">
+                        <label class="custom-checkbox flex items-start cursor-pointer group">
+                            <input type="checkbox" id="check-phone" class="hidden">
+                            <div class="w-6 h-6 border-2 border-cyan-400 rounded flex-shrink-0 flex items-center justify-center transition-colors mt-0.5 mr-3 group-hover:border-cyan-600 shadow-sm bg-white">
+                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-gray-800 font-medium leading-relaxed select-none">Я піднімаю смартфон/планшет досить високо, щоб не нахиляти голову вперед і вниз.</span>
+                        </label>
+                        
+                        <label class="custom-checkbox flex items-start cursor-pointer group">
+                            <input type="checkbox" id="check-light" class="hidden">
+                            <div class="w-6 h-6 border-2 border-cyan-400 rounded flex-shrink-0 flex items-center justify-center transition-colors mt-0.5 mr-3 group-hover:border-cyan-600 shadow-sm bg-white">
+                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-gray-800 font-medium leading-relaxed select-none">Я уникаю відбиття світла від вікон на екрані, а загальне освітлення є достатнім.</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- Крок 3 -->
+                <section class="glass-section rounded-2xl p-6 shadow-sm transition-all hover:shadow-md">
+                    <div class="flex items-center mb-4 border-b border-gray-300 pb-3">
+                        <span class="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 shadow-sm">3</span>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800">Профілактика зору (Таймер)</h2>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-5 gap-6 items-center pl-2 md:pl-11">
+                        <div class="md:col-span-3">
+                            <ul class="list-disc pl-5 space-y-2 text-gray-800">
+                                <li><strong>Гімнастика:</strong> Поводіть очима вліво-вправо, вгору-вниз, та зробіть кругові рухи очима (по 4 рази).</li>
+                                <li><strong>Правило "20-20-20":</strong> Кожні 20 хвилин дивіться на об'єкт на відстані ~6 метрів протягом 20 секунд.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="md:col-span-2 bg-white bg-opacity-70 p-4 rounded-2xl text-center shadow-inner border border-gray-200">
+                            <h3 class="text-sm uppercase tracking-wider font-bold text-gray-500 mb-1">Таймер 20-20-20</h3>
+                            <div id="timer-display" class="text-4xl md:text-5xl font-mono font-bold text-indigo-600 mb-3">20:00</div>
+                            <div class="flex justify-center gap-2">
+                                <button type="button" id="btn-start" class="px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-lg hover:bg-green-600 transition-colors shadow-sm">Старт</button>
+                                <button type="button" id="btn-pause" class="px-4 py-2 bg-yellow-500 text-white text-sm font-bold rounded-lg hover:bg-yellow-600 transition-colors shadow-sm hidden">Пауза</button>
+                                <button type="button" id="btn-reset" class="px-4 py-2 bg-red-500 text-white text-sm font-bold rounded-lg hover:bg-red-600 transition-colors shadow-sm">Скидання</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Крок 4 -->
+                <section class="glass-section rounded-2xl p-6 shadow-sm transition-all hover:shadow-md">
+                    <div class="flex items-center mb-2 border-b border-gray-300 pb-3">
+                        <span class="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mr-3 shadow-sm">4</span>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800">Створення звіту</h2>
+                    </div>
+                    <div class="pl-2 md:pl-11">
+                        <p class="text-gray-700 mb-5 text-sm md:text-base">Проаналізувавши попередні кроки, запишіть <strong>мінімум 3 пункти</strong>, які вам потрібно покращити на вашому робочому місці.</p>
+                        
+                        <div id="report-rows-container" class="space-y-4 mb-5">
+                            <!-- Динамічні рядки будуть додані тут -->
+                        </div>
+                        
+                        <div id="form-warning" class="text-red-600 font-semibold text-sm mb-4 hidden bg-red-100 p-3 rounded-lg border border-red-200">
+                            ⚠️ Будь ласка, заповніть хоча б 3 пункти (обидві колонки) перед генерацією звіту.
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button type="button" id="btn-add-row" class="glass-button-secondary px-5 py-3 rounded-xl font-bold flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Додати ще пункт
+                            </button>
+                            <button type="button" id="btn-generate" class="glass-button-primary px-6 py-3 rounded-xl font-bold text-lg flex-1 text-center shadow-lg">
+                                Згенерувати звіт
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </form>
+        </div>
+
+        <!-- ЗГЕНЕРОВАНИЙ ЗВІТ (Прихований за замовчуванням, видимий при друку/PDF) -->
+        <div id="reportSection" class="hidden glass-panel rounded-3xl p-6 md:p-12 animate-fade-in bg-white">
+            
+            <!-- Панель керування (Не друкується) -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 pb-6 border-b border-gray-200 no-print gap-4">
+                <button type="button" id="btn-back" class="glass-button-secondary px-5 py-2.5 rounded-xl font-bold flex items-center w-full md:w-auto justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Редагувати звіт
+                </button>
+                
+                <div class="text-center md:text-right w-full md:w-auto">
+                    <p class="text-sm text-gray-500 mb-2 font-medium">Готовий файл можна завантажити в систему "Мрія"</p>
+                    <button type="button" onclick="window.print()" class="w-full md:w-auto glass-button-primary px-6 py-3 rounded-xl font-bold flex items-center justify-center shadow-lg bg-indigo-600">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Зберегти як PDF / Друк
+                    </button>
+                </div>
+            </div>
+
+            <!-- Шапка звіту -->
+            <div class="text-center mb-10">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Звіт з ергономічного аудиту</h1>
+                <p class="text-gray-500 text-lg" id="report-date"></p>
+                <div class="mt-4 inline-block print-header-bg px-6 py-2 rounded-lg text-indigo-800 font-semibold no-print text-sm">
+                    Підготовлено для завантаження на перевірку
+                </div>
+            </div>
+
+            <!-- Результати чеклистів -->
+            <div class="grid md:grid-cols-2 gap-8 mb-10">
+                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <h3 class="text-xl font-bold text-indigo-900 mb-4 border-b border-indigo-100 pb-2">Ергономіка тіла</h3>
+                    <ul class="space-y-4" id="report-step1">
+                        <!-- Заповнюється JS -->
+                    </ul>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <h3 class="text-xl font-bold text-cyan-900 mb-4 border-b border-cyan-100 pb-2">Звички та освітлення</h3>
+                    <ul class="space-y-4" id="report-step2">
+                        <!-- Заповнюється JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Таблиця плану покращення -->
+            <h3 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                Мій план покращення робочого місця
+            </h3>
+            <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                <table class="w-full text-left border-collapse bg-white">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-800">
+                            <th class="py-4 px-5 font-bold border-b border-gray-200 w-1/2">Що було не так (Проблема)</th>
+                            <th class="py-4 px-5 font-bold border-b border-gray-200 w-1/2">Як я це виправив/виправлю (Рішення)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-table-body" class="divide-y divide-gray-100">
+                        <!-- Заповнюється JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-12 pt-6 border-t border-gray-200 text-sm text-gray-500 text-center font-medium">
+                Аудит згенеровано за допомогою вебзастосунку. Завдання виконано успішно.
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно для таймера -->
+    <div id="customModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl transform scale-95 transition-transform duration-300" id="modalContent">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-indigo-100 mb-5">
+                    <span class="text-4xl">👀</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Час для перерви!</h3>
+                <p class="text-gray-600 mb-6 text-lg">Зробіть перерву на 20 секунд. Подивіться на об'єкт вдалині (близько 6 метрів), щоб зняти напругу з очей.</p>
+                <button type="button" id="btn-close-modal" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-indigo-600 px-5 py-3 text-lg font-bold text-white shadow-md hover:bg-indigo-700 transition-colors">
+                    Я виконав(ла) вправу!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- ТАЙМЕР ЛОГІКА ---
+            let timerInterval;
+            let timeRemaining = 20 * 60; // 20 хвилин у секундах
+            let isRunning = false;
+            
+            const timerDisplay = document.getElementById('timer-display');
+            const btnStart = document.getElementById('btn-start');
+            const btnPause = document.getElementById('btn-pause');
+            const btnReset = document.getElementById('btn-reset');
+            const customModal = document.getElementById('customModal');
+            const modalContent = document.getElementById('modalContent');
+            const btnCloseModal = document.getElementById('btn-close-modal');
+
+            function updateTimerDisplay() {
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            function showModal() {
+                customModal.classList.remove('hidden');
+                setTimeout(() => {
+                    customModal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95');
+                }, 10);
+            }
+
+            function hideModal() {
+                customModal.classList.add('opacity-0');
+                modalContent.classList.add('scale-95');
+                setTimeout(() => {
+                    customModal.classList.add('hidden');
+                }, 300);
+            }
+
+            function startTimer() {
+                if (isRunning) return;
+                isRunning = true;
+                btnStart.classList.add('hidden');
+                btnPause.classList.remove('hidden');
+                
+                timerInterval = setInterval(() => {
+                    timeRemaining--;
+                    updateTimerDisplay();
+                    
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        showModal();
+                        resetTimer(); 
+                    }
+                }, 1000);
+            }
+
+            function pauseTimer() {
+                clearInterval(timerInterval);
+                isRunning = false;
+                btnStart.classList.remove('hidden');
+                btnPause.classList.add('hidden');
+                btnStart.textContent = "Продовжити";
+            }
+
+            function resetTimer() {
+                clearInterval(timerInterval);
+                isRunning = false;
+                timeRemaining = 20 * 60;
+                updateTimerDisplay();
+                btnStart.classList.remove('hidden');
+                btnPause.classList.add('hidden');
+                btnStart.textContent = "Старт";
+            }
+
+            btnStart.addEventListener('click', startTimer);
+            btnPause.addEventListener('click', pauseTimer);
+            btnReset.addEventListener('click', resetTimer);
+            btnCloseModal.addEventListener('click', hideModal);
+
+            // --- ДИНАМІЧНА ФОРМА (КРОК 4) ---
+            const rowsContainer = document.getElementById('report-rows-container');
+            const btnAddRow = document.getElementById('btn-add-row');
+            
+            function createRow(index) {
+                const row = document.createElement('div');
+                row.className = 'flex flex-col md:flex-row gap-3 report-row animate-fade-in relative';
+                
+                const deleteBtnHtml = index > 3 ? 
+                    `<button type="button" class="btn-remove-row absolute -right-2 -top-2 bg-white border border-red-200 text-red-500 rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors shadow-sm z-10" title="Видалити рядок">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>` : '';
+
+                row.innerHTML = `
+                    <div class="flex-1">
+                        <input type="text" placeholder="${index}. Що було не так? (Проблема)" class="problem-input w-full p-4 rounded-xl glass-input text-gray-900 placeholder-gray-500 font-medium shadow-sm" required>
+                    </div>
+                    <div class="flex-1 relative">
+                        <input type="text" placeholder="Як я це виправив/виправлю? (Рішення)" class="solution-input w-full p-4 rounded-xl glass-input text-gray-900 placeholder-gray-500 font-medium shadow-sm" required>
+                        ${deleteBtnHtml}
+                    </div>
+                `;
+                
+                if (index > 3) {
+                    row.querySelector('.btn-remove-row').addEventListener('click', () => {
+                        row.remove();
+                    });
+                }
+                return row;
+            }
+
+            // Ініціалізація 3 обов'язкових рядків
+            for (let i = 1; i <= 3; i++) {
+                rowsContainer.appendChild(createRow(i));
+            }
+
+            let rowCount = 3;
+            btnAddRow.addEventListener('click', () => {
+                rowCount++;
+                rowsContainer.appendChild(createRow(rowCount));
+            });
+
+            // --- ГЕНЕРАЦІЯ ЗВІТУ ---
+            const btnGenerate = document.getElementById('btn-generate');
+            const appSection = document.getElementById('appSection');
+            const reportSection = document.getElementById('reportSection');
+            const btnBack = document.getElementById('btn-back');
+            const formWarning = document.getElementById('form-warning');
+
+            function getStatusMarkup(isChecked) {
+                if(isChecked) {
+                    return `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold flex items-center w-fit">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> 
+                                Дотримуюсь
+                            </span>`;
+                } else {
+                    return `<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-bold flex items-center w-fit">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> 
+                                Треба виправити
+                            </span>`;
+                }
+            }
+
+            btnGenerate.addEventListener('click', () => {
+                const problems = document.querySelectorAll('.problem-input');
+                const solutions = document.querySelectorAll('.solution-input');
+                let validCount = 0;
+                
+                // Перевірка на заповненість мінімум 3 рядків
+                problems.forEach((p, i) => {
+                    if (p.value.trim() !== '' && solutions[i] && solutions[i].value.trim() !== '') {
+                        validCount++;
+                    }
+                });
+
+                if (validCount < 3) {
+                    formWarning.classList.remove('hidden');
+                    // Плавний скрол до попередження
+                    formWarning.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+                formWarning.classList.add('hidden');
+
+                // Читання чекбоксів
+                const isBackOk = document.getElementById('check-back').checked;
+                const isMonitorOk = document.getElementById('check-monitor').checked;
+                const isHandsOk = document.getElementById('check-hands').checked;
+                const isPhoneOk = document.getElementById('check-phone').checked;
+                const isLightOk = document.getElementById('check-light').checked;
+
+                // Заповнення списків звіту
+                document.getElementById('report-step1').innerHTML = `
+                    <li class="flex flex-col gap-2">
+                        <span class="font-semibold text-gray-700">Спина та ноги:</span> 
+                        ${getStatusMarkup(isBackOk)}
+                    </li>
+                    <li class="flex flex-col gap-2">
+                        <span class="font-semibold text-gray-700">Положення монітора:</span> 
+                        ${getStatusMarkup(isMonitorOk)}
+                    </li>
+                    <li class="flex flex-col gap-2">
+                        <span class="font-semibold text-gray-700">Положення рук:</span> 
+                        ${getStatusMarkup(isHandsOk)}
+                    </li>
+                `;
+
+                document.getElementById('report-step2').innerHTML = `
+                    <li class="flex flex-col gap-2">
+                        <span class="font-semibold text-gray-700">Використання гаджетів:</span> 
+                        ${getStatusMarkup(isPhoneOk)}
+                    </li>
+                    <li class="flex flex-col gap-2">
+                        <span class="font-semibold text-gray-700">Рівень освітлення:</span> 
+                        ${getStatusMarkup(isLightOk)}
+                    </li>
+                `;
+
+                // Заповнення таблиці
+                const tbody = document.getElementById('report-table-body');
+                tbody.innerHTML = '';
+                problems.forEach((p, i) => {
+                    if (p.value.trim() !== '' || solutions[i].value.trim() !== '') {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-gray-50 transition-colors";
+                        tr.innerHTML = `
+                            <td class="py-4 px-5 text-gray-800 align-top leading-relaxed">${p.value || '—'}</td>
+                            <td class="py-4 px-5 text-indigo-700 font-semibold align-top leading-relaxed">${solutions[i].value || '—'}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                });
+
+                // Встановлення дати
+                const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' };
+                document.getElementById('report-date').textContent = "Створено: " + new Date().toLocaleDateString('uk-UA', dateOptions);
+
+                // Анімація переходу
+                appSection.classList.add('hidden');
+                reportSection.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            });
+
+            btnBack.addEventListener('click', () => {
+                reportSection.classList.add('hidden');
+                appSection.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            });
+        });
+    </script>
+</body>
+</html>
